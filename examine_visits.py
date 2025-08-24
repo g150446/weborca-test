@@ -2,7 +2,7 @@
 import pyodbc
 
 # Connect to the database
-connection_string = "DRIVER={PostgreSQL Unicode};SERVER=localhost;PORT=5432;DATABASE=orca;UID=orca;PWD=orca;"
+connection_string = "DRIVER={PostgreSQL Unicode};SERVER=100.126.66.97;PORT=5432;DATABASE=orca;UID=orca;PWD=orca;"
 
 try:
     connection = pyodbc.connect(connection_string)

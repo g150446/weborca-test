@@ -1,0 +1,109 @@
+# PostgreSQL Server Configuration Handoff
+# =====================================
+# Date: 2025-01-24
+# Client IP: 100.89.18.15
+# Server IP: 100.126.66.97
+# Issue: pg_hba.conf authentication blocking client connections
+
+## PROBLEM SUMMARY
+The PostgreSQL server at 100.126.66.97 is rejecting connections from client IP 100.89.18.15
+Error message: "FATAL: no pg_hba.conf entry for host '100.89.18.15'"
+
+## REQUIRED SERVER-SIDE ACTIONS
+
+### 1. EDIT pg_hba.conf FILE
+Location: Usually /etc/postgresql/[version]/main/pg_hba.conf or /var/lib/pgsql/data/pg_hba.conf
+
+ADD these lines to allow client connections:
+```
+# Allow connections from client IP 100.89.18.15 (non-SSL)
+host    orca         orca         100.89.18.15/32        md5
+host    receipt      receipt      100.89.18.15/32        md5
+host    weborca      weborca      100.89.18.15/32        md5
+host    postgres     postgres     100.89.18.15/32        md5
+```
+
+### 2. RELOAD POSTGRESQL CONFIGURATION
+After editing pg_hba.conf, run ONE of these commands:
+
+Option A (Reload without restart):
+```bash
+sudo -u postgres psql -c "SELECT pg_reload_conf();"
+```
+
+Option B (Restart service):
+```bash
+sudo systemctl restart postgresql
+# OR
+sudo service postgresql restart
+```
+
+### 3. VERIFY CONFIGURATION
+Check if the changes were applied:
+```bash
+sudo -u postgres psql -c "SELECT name, setting FROM pg_settings WHERE name IN ('hba_file', 'ssl');"
+```
+
+## DATABASES AND USERS TO CONFIGURE
+- Database: orca, User: orca, Password: orca
+- Database: receipt, User: receipt, Password: receipt  
+- Database: weborca, User: weborca, Password: weborca
+- Database: postgres, User: postgres, Password: (empty)
+
+## TESTING FROM CLIENT SIDE
+After server configuration, client can test with:
+```bash
+python test_orca_odbc.py
+python connection_troubleshoot.py
+```
+
+## FILE LOCATIONS TO CHECK
+Common pg_hba.conf locations:
+- /etc/postgresql/15/main/pg_hba.conf
+- /etc/postgresql/14/main/pg_hba.conf
+- /etc/postgresql/13/main/pg_hba.conf
+- /var/lib/pgsql/data/pg_hba.conf
+- /usr/local/pgsql/data/pg_hba.conf
+
+Find with: sudo find / -name "pg_hba.conf" 2>/dev/null
+
+## SECURITY NOTES
+- Using 'host' (not 'hostssl') allows non-SSL connections
+- /32 subnet mask allows only the specific IP 100.89.18.15
+- md5 authentication requires password verification
+- This configuration is suitable for internal network use
+
+## ALTERNATIVE: SSH TUNNEL (if direct access not allowed)
+If pg_hba.conf cannot be modified, client can use SSH tunnel:
+```bash
+ssh -L 5432:localhost:5432 user@100.126.66.97
+# Then connect to localhost:5432 instead of 100.126.66.97:5432
+```
+
+## VALIDATION COMMANDS
+After changes, verify with:
+```sql
+-- Check current connections
+SELECT inet_client_addr(), inet_server_addr(), usename, datname FROM pg_stat_activity WHERE state = 'active';
+
+-- Check pg_hba rules (PostgreSQL 10+)
+SELECT line_number, type, database, user_name, address, auth_method FROM pg_hba_file_rules WHERE address IS NOT NULL;
+```
+
+## CONTACT INFO
+- Client Machine: 100.89.18.15
+- PostgreSQL Server: 100.126.66.97:5432
+- Required ports: 5432 (PostgreSQL)
+
+## EXPECTED OUTCOME
+After configuration, client should be able to:
+1. Connect to all four databases without SSL
+2. Run database queries and operations
+3. Execute patient management and visit tracking functions
+
+## TROUBLESHOOTING
+If connections still fail after pg_hba.conf changes:
+1. Check PostgreSQL logs: tail -f /var/log/postgresql/postgresql-*-main.log
+2. Verify PostgreSQL is listening on all interfaces: netstat -tlnp | grep 5432
+3. Check firewall rules: sudo ufw status or iptables -L
+4. Confirm postgresql.conf has: listen_addresses = '*'

@@ -91,7 +91,7 @@ Focuses on analyzing visit and appointment-related database structures.
 ## Database Connection Details
 
 All scripts use the following default connection parameters:
-- **Server:** localhost
+- **Server:** 100.126.66.97
 - **Port:** 5432
 - **Database:** orca
 - **Username:** orca

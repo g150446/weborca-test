@@ -97,7 +97,7 @@ def test_orca_database():
     # Common Web ORCA database connection parameters
     # These are typical defaults - you may need to adjust based on your setup
     connection_params = {
-        'server': 'localhost',
+        'server': '100.126.66.97',
         'port': '5432',
         'database': 'orca',  # Common ORCA database name
         'uid': 'orca',       # Common ORCA user
@@ -111,10 +111,10 @@ def test_orca_database():
         {'database': 'postgres', 'uid': 'postgres', 'pwd': ''},
     ]
     
-    # Test with PostgreSQL ANSI driver
+    # Test with PostgreSQL ANSI driver (with SSL)
     ansi_connection_string = (
         f"DRIVER={{PostgreSQL ANSI}};"
-        f"SERVER={connection_params['server']};"
+        f"SERVER=100.126.66.97;"
         f"PORT={connection_params['port']};"
         f"DATABASE={connection_params['database']};"
         f"UID={connection_params['uid']};"
@@ -127,12 +127,12 @@ def test_orca_database():
     if not result_ansi:
         unicode_connection_string = (
             f"DRIVER={{PostgreSQL Unicode}};"
-            f"SERVER={connection_params['server']};"
+            f"SERVER=100.126.66.97;"
             f"PORT={connection_params['port']};"
             f"DATABASE={connection_params['database']};"
             f"UID={connection_params['uid']};"
             f"PWD={connection_params['pwd']};"
-        )
+            )
         
         result_unicode = test_connection(unicode_connection_string, "PostgreSQL Unicode")
         
@@ -144,12 +144,12 @@ def test_orca_database():
                 
                 alt_connection_string = (
                     f"DRIVER={{PostgreSQL ANSI}};"
-                    f"SERVER={connection_params['server']};"
+                    f"SERVER=100.126.66.97;"
                     f"PORT={connection_params['port']};"
                     f"DATABASE={alt_params['database']};"
                     f"UID={alt_params['uid']};"
                     f"PWD={alt_params['pwd']};"
-                )
+                            )
                 
                 result = test_connection(alt_connection_string, f"PostgreSQL ANSI ({alt_params['database']})")
                 if result:
@@ -171,7 +171,7 @@ def list_patients():
     # Use the working connection parameters
     connection_string = (
         f"DRIVER={{PostgreSQL Unicode}};"
-        f"SERVER=localhost;"
+        f"SERVER=100.126.66.97;"
         f"PORT=5432;"
         f"DATABASE=orca;"
         f"UID=orca;"
@@ -279,7 +279,7 @@ def search_patients():
     
     connection_string = (
         f"DRIVER={{PostgreSQL Unicode}};"
-        f"SERVER=localhost;"
+        f"SERVER=100.126.66.97;"
         f"PORT=5432;"
         f"DATABASE=orca;"
         f"UID=orca;"
@@ -363,7 +363,7 @@ def show_todays_visits():
     
     connection_string = (
         f"DRIVER={{PostgreSQL Unicode}};"
-        f"SERVER=localhost;"
+        f"SERVER=100.126.66.97;"
         f"PORT=5432;"
         f"DATABASE=orca;"
         f"UID=orca;"
@@ -491,7 +491,7 @@ def test_specific_connection():
     print("\n=== Custom Connection Test ===")
     
     # Get connection parameters from user
-    server = input("Enter server (default: localhost): ") or "localhost"
+    server = input("Enter server (default: 100.126.66.97): ") or "100.126.66.97"
     port = input("Enter port (default: 5432): ") or "5432"
     database = input("Enter database name: ")
     username = input("Enter username: ")
@@ -557,7 +557,7 @@ if __name__ == "__main__":
             
             connection_string = (
                 f"DRIVER={{PostgreSQL Unicode}};"
-                f"SERVER=localhost;"
+                f"SERVER=100.126.66.97;"
                 f"PORT=5432;"
                 f"DATABASE=orca;"
                 f"UID=orca;"
